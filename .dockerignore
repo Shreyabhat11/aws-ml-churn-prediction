@@ -1,0 +1,10 @@
+data/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv/
+venv/
+README.md
