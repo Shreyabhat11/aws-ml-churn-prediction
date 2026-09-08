@@ -1,22 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from pydantic import BaseModel
 import joblib
 import pandas as pd
 
 import boto3
-
-
-# Load model
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-MODEL_PATH = BASE_DIR / "models" / "churn_model.pkl"
 
 S3_BUCKET = "shreya-aws-churn-model-2026"
 S3_KEY = "churn-model/churn_model.pkl"
 
 LOCAL_MODEL_PATH = BASE_DIR / "models" / "churn_model.pkl"
+
+# Download model from S3 if it doesn't exist locally
+def download_model_from_s3():
+    if not LOCAL_MODEL_PATH.exists():
+        LOCAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+        s3 = boto3.client("s3")
+
+        s3.download_file(
+            S3_BUCKET,
+            S3_KEY,
+            str(LOCAL_MODEL_PATH)
+        )
+
+
+# Download and load model
+download_model_from_s3()
+model = joblib.load(LOCAL_MODEL_PATH)
+
 
 # Create FastAPI application
 app = FastAPI(
@@ -80,17 +94,3 @@ def predict(customer: Customer):
         "prediction": "Likely to churn" if prediction == 1 else "Likely to stay",
         "churn_probability": round(float(probability), 4)
     }
-
-def download_model_from_s3():
-    if not LOCAL_MODEL_PATH.exists():
-        LOCAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-        s3 = boto3.client("s3")
-        s3.download_file(
-            S3_BUCKET,
-            S3_KEY,
-            str(LOCAL_MODEL_PATH)
-        )
-
-download_model_from_s3()
-model = joblib.load(LOCAL_MODEL_PATH)
