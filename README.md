@@ -1,8 +1,3 @@
-Absolutely. Since this is now a **real deployed AWS ML project**, I'd make the README recruiter-friendly rather than a generic tutorial README.
-
-You can replace your current `README.md` with this:
-
-````markdown
 # Customer Churn Prediction API on AWS
 
 A production-style machine learning API that predicts customer churn and is deployed on AWS using EC2, Docker, S3, IAM, and CloudWatch.
